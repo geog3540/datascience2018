@@ -42,10 +42,11 @@
 
 <script type="text/javascript">
 
-var attributeName = "Population";
-var attributeAlias = "Population";
+var attributeName = "ageover65";
+var attributeAlias = "% Age Over 65";
+var normalizeBy = "Population";
 
-var southWest = L.latLng(25, -125), northEast = L.latLng(49, -69), bounds = L.latLngBounds(southWest, northEast);
+var southWest = L.latLng(40.3401, -96.9222), northEast = L.latLng(43.7134, -90.0887), bounds = L.latLngBounds(southWest, northEast);
 
 var map = L.map('map').fitBounds(bounds);//.setView([ 39, -97 ], 4)
 
@@ -63,7 +64,7 @@ var svg = d3.select(map.getPanes().overlayPane).append("svg");
 // original SVG
 var g = svg.append("g").attr("class", "leaflet-zoom-hide");
 
-var opacity = 1;
+var opacity = 0.8;
 var polygoncolors;
 
 var colorsArray = colorbrewer.Blues[8].map(function(rgb) { return d3.hsl(rgb); });
@@ -81,8 +82,9 @@ d3.json("data/iowacountiesall.json", function(geoShape) {
 
   var myarr = [];
 	geoShape.features.forEach(function (d) {
-		if(+d.properties[attributeName] > 0)
-		myarr.push(+d.properties[attributeName]);
+		if(+d.properties[normalizeBy] > 0){
+			myarr.push(+d.properties[attributeName]/+d.properties[normalizeBy]);
+		}
 	});
 
 	polygoncolors = d3.scaleQuantile()
@@ -163,7 +165,7 @@ d3.json("data/iowacountiesall.json", function(geoShape) {
 		// initialize the path data
 		polygons.attr("d", path).style("fill-opacity", opacity).attr(
 			'fill', function(d) {
-				return polygoncolors(d.properties[attributeName]);
+				return polygoncolors(d.properties[attributeName]/+d.properties[normalizeBy]);
 			});
 
 		}//end of reset map
